@@ -18,4 +18,10 @@ router.delete('/users/:userId', adminController.deleteUser);
 router.get('/users/:userId', adminController.viewUserById);
 router.get('/users', adminController.viewAllUsers)
 
+router.post('/buses', adminController.createBus);
+router.put('/buses/:busId', adminController.updateBus);
+router.delete('/buses/:busId', adminController.deleteBus);
+router.get('/buses/:busId', adminController.viewBusById);
+router.get('/buses', adminController.viewAllBuses);
+
 module.exports = router;

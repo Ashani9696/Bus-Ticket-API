@@ -72,6 +72,92 @@ const createRoute = async (req, res) => {
       });
     }
   };
+
+  const createBus = async (req, res) => {
+    const { route, busNumber, capacity } = req.body;
+    try {
+      const newBus = new Bus({
+        route,
+        busNumber,
+        capacity,
+        operator: req.user._id,
+      });
+  
+      await newBus.save();
+      res.status(201).json({ message: 'Bus created successfully', newBus });
+    } catch (error) {
+      res.status(400).json({ message: 'Error creating bus', error });
+    }
+  };
+  
+  const updateBus = async (req, res) => {
+    const { busId } = req.params;
+    const updateData = req.body;
+    try {
+      const updatedBus = await Bus.findOneAndUpdate({ _id: busId }, updateData, {
+        new: true,
+      });
+  
+      if (!updatedBus) {
+        return res.status(404).json({ message: 'Bus not found or not owned by you' });
+      }
+  
+      res.status(200).json(updatedBus);
+    } catch (error) {
+      res.status(400).json({ message: 'Error updating bus', error });
+    }
+  };
+  
+  const deleteBus = async (req, res) => {
+    const { busId } = req.params;
+    try {
+      const deletedBus = await Bus.findOneAndDelete({
+        _id: busId,
+      });
+      if (!deletedBus) {
+        return res.status(404).json({ message: 'Bus not found or not owned by you' });
+      }
+  
+      res.status(200).json({ message: 'Bus deleted successfully' });
+    } catch (error) {
+      res.status(400).json({ message: 'Error deleting bus', error });
+    }
+  };
+  
+  const viewAllBuses = async (req, res) => {
+    try {
+      const buses = await Bus.find().populate('route');
+      res.status(200).json({ success: true, data: buses });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching buses',
+        error: error.message,
+      });
+    }
+  };
+  
+  const viewBusById = async (req, res) => {
+    const { busId } = req.params;
+    try {
+      const bus = await Bus.findOne({
+        _id: busId,
+        operator: req.user._id,
+      }).populate('route');
+  
+      if (!bus) {
+        return res.status(404).json({ success: false, message: 'Bus not found or not owned by you' });
+      }
+  
+      res.status(200).json({ success: true, data: bus });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching bus',
+        error: error.message,
+      });
+    }
+  };
   
 
 const createUser = async (req, res) => {
@@ -154,5 +240,11 @@ module.exports = {
   createRoute,
   updateRoute,
   deleteRoute,
-  viewAllRoutes
+  viewAllRoutes,
+  createBus,
+  updateBus,
+  deleteBus,
+  viewAllBuses,
+  viewBusById
+
 };
