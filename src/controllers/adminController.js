@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const Route = require('../models/routeModel');
 const Bus = require('../models/busModel');
+const Payment = require('../models/paymentModel');
+
 
 
 const createRoute = async (req, res) => {
@@ -230,6 +232,41 @@ const viewUserById = async (req, res) => {
   }
 };
 
+const viewAllPayments = async (req, res) => {
+    try {
+      const payments = await Payment.find().populate('booking');
+      res.status(200).json(payments);
+    } catch (error) {
+      res.status(400).json({ message: 'Error fetching payments', error });
+    }
+  };
+  
+  const viewAllBusOperators = async (req, res) => {
+    try {
+      const operators = await User.find({ role: 'bus_operator' });
+      res.status(200).json(operators);
+    } catch (error) {
+      res.status(400).json({ message: 'Error fetching bus operators', error });
+    }
+  };
+  
+  const updateBusOperator = async (req, res) => {
+    const { userId } = req.params;
+    const updateData = req.body;
+    try {
+      const updatedOperator = await User.findByIdAndUpdate(userId, updateData, {
+        new: true,
+      });
+      if (!updatedOperator) {
+        return res.status(404).json({ message: 'Bus operator not found' });
+      }
+      res.status(200).json(updatedOperator);
+    } catch (error) {
+      res.status(400).json({ message: 'Error updating bus operator', error });
+    }
+  };
+  
+
 module.exports = {
   createUser,
   updateUser,
@@ -245,6 +282,9 @@ module.exports = {
   updateBus,
   deleteBus,
   viewAllBuses,
-  viewBusById
+  viewBusById,
+  viewAllBusOperators,
+  updateBusOperator,
+  viewAllPayments
 
 };

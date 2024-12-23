@@ -24,4 +24,10 @@ router.delete('/buses/:busId', adminController.deleteBus);
 router.get('/buses/:busId', adminController.viewBusById);
 router.get('/buses', adminController.viewAllBuses);
 
+router.get('/payments', adminController.viewAllPayments);
+
+
+router.get('/operators', adminController.viewAllBusOperators);
+router.put('/operators/:userId', adminController.updateBusOperator);
+
 module.exports = router;
