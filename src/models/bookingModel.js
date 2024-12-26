@@ -8,6 +8,7 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     bus: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', required: true },
+    trip: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true },
     seatNumber: { type: Number, required: true },
     dueAmount: { type: mongoose.Schema.Types.Decimal128, required: true },
     status: {
