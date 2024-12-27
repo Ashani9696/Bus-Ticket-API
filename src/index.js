@@ -6,6 +6,8 @@ const connectDB = require("./configs/db");
 const logger = require("./configs/logger");
 const validateEnv = require("./utils/validateEnv");
 const errorHandler = require("./middlewares/errorMiddleware");
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 
 validateEnv();
