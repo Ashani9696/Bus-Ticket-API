@@ -7,16 +7,46 @@ const createValidationMiddleware = (schema, validateOptions = {}) => {
   };
 
   const formatError = (error) => {
-    const details = error.details.map((err) => ({
-      field: err.path.join('.'),
-      message: err.message,
-      type: err.type,
-    }));
+    // Handle Joi validation errors
+    if (error.isJoi) {
+      const details = error.details.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+        type: err.type,
+      }));
+      return {
+        status: 'error',
+        error: 'Validation Error',
+        details,
+      };
+    }
 
+    // Handle external validation errors
+    if (error instanceof Error) {
+      return {
+        status: 'error',
+        error: 'Validation Error',
+        details: [
+          {
+            field: 'external',
+            message: error.message,
+            type: 'external',
+          },
+        ],
+      };
+    }
+
+    // Handle unknown errors
     return {
       status: 'error',
       error: 'Validation Error',
-      details,
+      details: [
+        {
+          field: 'unknown',
+          message: 'An unknown validation error occurred',
+          type: 'unknown',
+        },
+      ],
     };
   };
 
@@ -42,15 +72,10 @@ const createValidationMiddleware = (schema, validateOptions = {}) => {
       }
 
       req.validated = validatedData;
-
       return next();
     } catch (error) {
       console.error('Validation middleware error:', error);
-      return res.status(500).json({
-        status: 'error',
-        error: 'Internal Server Error',
-        message: 'An unexpected error occurred during validation',
-      });
+      return res.status(500).json(formatError(error));
     }
   };
 };
