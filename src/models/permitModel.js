@@ -20,6 +20,11 @@ const permitSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     status: {
       type: String,
       enum: ['active', 'expired', 'suspended'],
@@ -28,5 +33,6 @@ const permitSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model('Permit', permitSchema);

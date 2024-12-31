@@ -27,8 +27,8 @@ app.use('/', require('./routes/bookingRoutes'));
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yml'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1', require('./routes/appRoute'));
 
 app.use(errorHandler);
 

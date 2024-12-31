@@ -1,16 +1,63 @@
 openapi: 3.0.0
 info:
-  title: Bus Seat Booking System API
+  title: NIBM Bus Ticket Booking API
   version: 1.0.0
-  description: API documentation for the Bus Seat Booking System
+  description: API documentation for the NIBM Bus Ticket Booking System
   contact:
     name: Your Name
     email: your.email@example.com
 servers:
   - url: http://localhost:5000
+
+tags:
+  - name: Authentication
+    description: Endpoints related to user authentication
+  - name: User Management
+    description: Endpoints for managing users
+
+# Authentication Endpoints
 paths:
-  /api/auth/login:
+  /auth/register:
     post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with the specified role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Admin User
+                email:
+                  type: string
+                  format: email
+                  example: learn.dev0603@gmail.com
+                password:
+                  type: string
+                  example: password123
+                role:
+                  type: string
+                  enum: [admin, bus_operator, user]
+                  example: admin
+              required:
+                - name
+                - email
+                - password
+                - role
+      responses:
+        201:
+          description: User successfully registered
+        400:
+          description: Invalid input or duplicate email
+  /auth/login:
+    post:
+      tags:
+        - Authentication
       summary: Login user
       description: Authenticates the user and returns a JWT token.
       requestBody:
@@ -23,8 +70,10 @@ paths:
                 email:
                   type: string
                   format: email
+                  example: learn.dev0603@gmail.com
                 password:
                   type: string
+                  example: password123
               required:
                 - email
                 - password
@@ -36,14 +85,91 @@ paths:
               schema:
                 type: object
                 properties:
-                  token:
+                  accessToken:
                     type: string
+                    description: JWT access token
         400:
           description: Invalid credentials
-  /api/users:
+  /auth/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Returns a new JWT token.
+      responses:
+        200:
+          description: Successfully refreshed token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: New JWT access token
+        401:
+          description: Unauthorized or expired refresh token
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: Logs out the user and invalidates the token.
+      responses:
+        200:
+          description: Successfully logged out
+        401:
+          description: Unauthorized or invalid token
+
+# User Management Endpoints
+  /user:
+    post:
+      tags:
+        - User Management
+      summary: Create a new user
+      description: Creates a new user with the specified details and role.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: operator User
+                email:
+                  type: string
+                  format: email
+                  example: operator@example.com
+                password:
+                  type: string
+                  example: securepassword
+                role:
+                  type: string
+                  enum: [admin, bus_operator, user]
+                  example: bus_operator
+              required:
+                - name
+                - email
+                - password
+                - role
+      responses:
+        201:
+          description: User successfully created
+        400:
+          description: Invalid input or duplicate email
+
+  /users:
     get:
-      summary: Get all users
-      description: Returns a list of all users.
+      tags:
+        - User Management
+      summary: View all users
+      description: Returns a list of all registered users.
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: List of users
@@ -55,8 +181,542 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: integer
+                      type: string
+                      example: 67555515f59a4567a5b172b8
                     name:
                       type: string
+                      example: Operator User
                     email:
                       type: string
+                      format: email
+                      example: operator@example.com
+                    role:
+                      type: string
+                      enum: [admin, bus_operator, user]
+                      example: bus_operator
+
+  /users/{id}:
+    get:
+      tags:
+        - User Management
+      summary: View a single user
+      description: Fetches details of a user by their unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 67555515f59a4567a5b172b8
+          description: The unique ID of the user.
+      responses:
+        200:
+          description: User details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 67555515f59a4567a5b172b8
+                  name:
+                    type: string
+                    example: Operator User
+                  email:
+                    type: string
+                    format: email
+                    example: operator@example.com
+                  role:
+                    type: string
+                    enum: [admin, bus_operator, user]
+                    example: bus_operator
+        404:
+          description: User not found
+
+    put:
+      tags:
+        - User Management
+      summary: Update a user
+      description: Updates the details of a user by their unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 67557cc724cfc8c600a5d374
+          description: The unique ID of the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john.doe@example.com
+                role:
+                  type: string
+                  enum: [admin, bus_operator, user]
+                  example: commuter
+              required:
+                - name
+                - email
+                - role
+      responses:
+        200:
+          description: User successfully updated
+        404:
+          description: User not found
+
+    delete:
+      tags:
+        - User Management
+      summary: Delete a user
+      description: Deletes a user by their unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 67557cc724cfc8c600a5d374
+          description: The unique ID of the user.
+      responses:
+        200:
+          description: User successfully deleted
+        404:
+          description: User not found
+  
+  # Routes Management Endpoints
+  /route:
+    post:
+      tags:
+        - Routes Management
+      summary: Create a new route
+      description: Creates a new bus route with its details, including stops, schedules, and fares.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                routeNumber:
+                  type: string
+                  example: R001
+                name:
+                  type: string
+                  example: City Center to Green Park
+                category:
+                  type: string
+                  example: Local
+                stops:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: City Center
+                      location:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            example: Point
+                          coordinates:
+                            type: array
+                            items:
+                              type: number
+                              example: [79.8612, 6.9271]
+                      distanceFromStart:
+                        type: number
+                        example: 0
+                      estimatedTime:
+                        type: number
+                        example: 0
+                schedules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      departureTime:
+                        type: string
+                        example: 08:00
+                      operatingDays:
+                        type: array
+                        items:
+                          type: string
+                          example: Monday
+                fares:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fromStop:
+                        type: string
+                        example: City Center
+                      toStop:
+                        type: string
+                        example: Green Park
+                      amount:
+                        type: number
+                        example: 50
+                distance:
+                  type: number
+                  example: 5
+                estimatedDuration:
+                  type: number
+                  example: 15
+                restrictions:
+                  type: object
+                  properties:
+                    maxCapacity:
+                      type: number
+                      example: 50
+                    allowStanding:
+                      type: boolean
+                      example: true
+                features:
+                  type: object
+                  properties:
+                    hasWifi:
+                      type: boolean
+                      example: false
+                    hasAC:
+                      type: boolean
+                      example: true
+              required:
+                - routeNumber
+                - name
+                - category
+                - stops
+                - schedules
+                - fares
+                - distance
+                - estimatedDuration
+                - restrictions
+      responses:
+        201:
+          description: Route successfully created
+        400:
+          description: Invalid input
+
+  /route:
+    get:
+      tags:
+        - Routes Management
+      summary: View all routes
+      description: Returns a list of all routes with optional filters for specific stops, dates, etc.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            example: City Center
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Green Park
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            example: 2025-01-02
+      responses:
+        200:
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    routeNumber:
+                      type: string
+                      example: R001
+                    name:
+                      type: string
+                      example: City Center to Green Park
+                    category:
+                      type: string
+                      example: Local
+                    stops:
+                      type: array
+                      items:
+                        type: string
+                        example: City Center
+                    schedules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          departureTime:
+                            type: string
+                            example: 08:00
+                          operatingDays:
+                            type: array
+                            items:
+                              type: string
+                              example: Monday
+        400:
+          description: Invalid parameters
+
+  /route/{id}:
+    get:
+      tags:
+        - Routes Management
+      summary: View a single route
+      description: Fetches details of a specific route by its unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 677338b307bbc8b7481ab5fc
+      responses:
+        200:
+          description: Route details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routeNumber:
+                    type: string
+                    example: R001
+                  name:
+                    type: string
+                    example: City Center to Green Park
+                  category:
+                    type: string
+                    example: Local
+                  stops:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: City Center
+                        location:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: Point
+                            coordinates:
+                              type: array
+                              items:
+                                type: number
+                                example: [79.8612, 6.9271]
+                  schedules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        departureTime:
+                          type: string
+                          example: 08:00
+                        operatingDays:
+                          type: array
+                          items:
+                            type: string
+                            example: Monday
+                  fares:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        fromStop:
+                          type: string
+                          example: City Center
+                        toStop:
+                          type: string
+                          example: Green Park
+                        amount:
+                          type: number
+                          example: 50
+                  distance:
+                    type: number
+                    example: 5
+                  estimatedDuration:
+                    type: number
+                    example: 15
+        404:
+          description: Route not found
+
+    put:
+      tags:
+        - Routes Management
+      summary: Update a route
+      description: Updates the details of an existing route by its unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 677338b307bbc8b7481ab5fc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Updated Route Name
+                category:
+                  type: string
+                  example: Express
+                distance:
+                  type: number
+                  example: 10
+                estimatedDuration:
+                  type: number
+                  example: 25
+                features:
+                  type: object
+                  properties:
+                    hasWifi:
+                      type: boolean
+                      example: true
+                    hasAC:
+                      type: boolean
+                      example: true
+      responses:
+        200:
+          description: Route successfully updated
+        404:
+          description: Route not found
+
+    delete:
+      tags:
+        - Routes Management
+      summary: Delete a route
+      description: Deletes a specific route by its unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 677338b307bbc8b7481ab5fc
+      responses:
+        200:
+          description: Route successfully deleted
+        404:
+          description: Route not found
+
+  /route/calculate-fare:
+    get:
+      tags:
+        - Routes Management
+      summary: Calculate fare between two stops on a route
+      description: Computes the fare between two stops on a specific route.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: routeId
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 677338b307bbc8b7481ab5fc
+        - name: startStop
+          in: query
+          required: true
+          schema:
+            type: string
+            example: City Center
+        - name: endStop
+          in: query
+          required: true
+          schema:
+            type: string
+            example: Green Park
+      responses:
+        200:
+          description: Fare calculated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  amount:
+                    type: number
+                    example: 50
+        400:
+          description: Invalid parameters
+
+  /route/{id}/assign-busses:
+    put:
+      tags:
+        - Routes Management
+      summary: Assign buses to a route
+      description: Assigns buses to a specific route with their schedules.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 677358d56fbafb47bd73420c
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                buses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      bus:
+                        type: string
+                        example: 67738293664192688d3a39dc
+                      schedule:
+                        type: string
+                        example: 677358d56fbafb47bd73420f
+      responses:
+        200:
+          description: Buses successfully assigned to the route
+        400:
+          description: Invalid input
+

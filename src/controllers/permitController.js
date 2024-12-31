@@ -1,17 +1,6 @@
 const Permit = require('../models/permitModel');
-const ErrorHandler = require('../utils/errorHandler');
 
-const verifyPermitAccess = async (permitId, userId, role) => {
-  const permit = await Permit.findById(permitId);
-  if (!permit) {
-    throw new ErrorHandler(404, 'Permit not found');
-  }
-  if (role !== 'admin' && permit.operator.toString() !== userId) {
-    throw new ErrorHandler(403, 'You do not have permission to access this permit');
-  }
-  return permit;
-};
-
+// Create a new permit
 const createPermit = async (req, res) => {
   try {
     const { permitNumber, issueDate, expiryDate, route, bus, operator, status } = req.body;
@@ -41,19 +30,22 @@ const createPermit = async (req, res) => {
     });
   } catch (error) {
     console.error('Create permit error:', error);
-    res.status(400).json({
+    res.status(error.statusCode || 400).json({
       success: false,
-      message: 'Failed to create permit',
-      error: error.message,
+      message: error.message || 'Failed to create permit',
     });
   }
 };
 
+// Get all permits with optional filters
 const getAllPermits = async (req, res) => {
   try {
     const { page = 1, limit = 10, status, operator, route, startDate, endDate, sort = '-createdAt' } = req.query;
 
+    // Initialize filter object
     const filter = {};
+
+    // Apply filters only if they exist
     if (status) filter.status = status;
     if (operator) filter.operator = operator;
     if (route) filter.route = route;
@@ -63,110 +55,124 @@ const getAllPermits = async (req, res) => {
       if (endDate) filter.issueDate.$lte = new Date(endDate);
     }
 
+    // Apply role-based filtering if not admin
     if (req.user.role !== 'admin') {
       filter.operator = req.user._id;
     }
 
+    console.log('Filter object:', filter); // Debug log for the filter object
+
+    // Fetch permits with or without filters
     const permits = await Permit.find(filter)
       .populate('route', 'name routeNumber')
       .populate('bus', 'registrationNumber')
       .populate('operator', 'name email')
       .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .skip((page - 1) * parseInt(limit))
       .exec();
 
+    // Get total count of permits matching the filter
     const total = await Permit.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       permits,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
       totalPermits: total,
     });
   } catch (error) {
     console.error('Get permits error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
-      message: 'Error retrieving permits',
-      error: error.message,
+      message: error.message || 'Error retrieving permits',
     });
   }
 };
 
+
+// Get a permit by ID
 const getPermitById = async (req, res) => {
   try {
-    const permit = await verifyPermitAccess(req.params.id, req.user._id, req.user.role);
-
-    const populatedPermit = await Permit.findById(permit._id)
+    const permit = await Permit.findById(req.params.id)
       .populate('route', 'name routeNumber')
       .populate('bus', 'registrationNumber')
       .populate('operator', 'name email')
-      .populate('createdBy', 'name');
+      .populate('createdBy', 'name')
+      .set('strictPopulate', false); // Allow population of fields not in the schema
+
+    if (!permit) {
+      return res.status(404).json({
+        success: false,
+        message: 'Permit not found',
+      });
+    }
 
     res.status(200).json({
       success: true,
-      permit: populatedPermit,
+      permit,
     });
   } catch (error) {
     console.error('Get permit error:', error);
     res.status(error.statusCode || 500).json({
       success: false,
       message: error.message || 'Error retrieving permit',
-      error: error.message,
     });
   }
 };
 
+// Update a permit
 const updatePermit = async (req, res) => {
   try {
-    const permit = await verifyPermitAccess(req.params.id, req.user._id, req.user.role);
-
     const updates = {
       ...req.body,
       lastUpdatedBy: req.user._id,
       lastUpdatedAt: Date.now(),
     };
 
-    if (updates.status === 'expired' && permit.status !== 'expired') {
-      updates.expiryDate = new Date();
-    }
-
-    const updatedPermit = await Permit.findByIdAndUpdate(
-      req.params.id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    )
+    const permit = await Permit.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true, runValidators: true })
       .populate('route', 'name routeNumber')
       .populate('bus', 'registrationNumber')
       .populate('operator', 'name email');
 
+    if (!permit) {
+      return res.status(404).json({
+        success: false,
+        message: 'Permit not found',
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'Permit updated successfully',
-      permit: updatedPermit,
+      permit,
     });
   } catch (error) {
     console.error('Update permit error:', error);
     res.status(error.statusCode || 400).json({
       success: false,
-      message: 'Failed to update permit',
-      error: error.message,
+      message: error.message || 'Failed to update permit',
     });
   }
 };
 
+// Delete a permit (suspend it)
 const deletePermit = async (req, res) => {
   try {
-    const permit = await verifyPermitAccess(req.params.id, req.user._id, req.user.role);
-
-    await Permit.findByIdAndUpdate(req.params.id, {
+    const permit = await Permit.findByIdAndUpdate(req.params.id, {
       status: 'suspended',
       isDeleted: true,
       deletedAt: new Date(),
       deletedBy: req.user._id,
     });
+
+    if (!permit) {
+      return res.status(404).json({
+        success: false,
+        message: 'Permit not found',
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -176,53 +182,7 @@ const deletePermit = async (req, res) => {
     console.error('Delete permit error:', error);
     res.status(error.statusCode || 500).json({
       success: false,
-      message: 'Failed to delete permit',
-      error: error.message,
-    });
-  }
-};
-
-const getPermitStats = async (req, res) => {
-  try {
-    const stats = await Permit.aggregate([
-      {
-        $match: req.user.role !== 'admin' ? { operator: req.user._id } : {},
-      },
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 },
-          routes: { $addToSet: '$route' },
-          buses: { $addToSet: '$bus' },
-        },
-      },
-    ]);
-
-    const totalStats = {
-      total: stats.reduce((acc, curr) => acc + curr.count, 0),
-      byStatus: stats.reduce(
-        (acc, curr) => ({
-          ...acc,
-          [curr._id]: {
-            count: curr.count,
-            uniqueRoutes: curr.routes.length,
-            uniqueBuses: curr.buses.length,
-          },
-        }),
-        {}
-      ),
-    };
-
-    res.status(200).json({
-      success: true,
-      statistics: totalStats,
-    });
-  } catch (error) {
-    console.error('Get permit stats error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving permit statistics',
-      error: error.message,
+      message: error.message || 'Failed to delete permit',
     });
   }
 };
@@ -231,6 +191,7 @@ const checkPermitValidity = async (req, res) => {
   try {
     const { permitNumber } = req.params;
 
+    // Query by permitNumber instead of _id
     const permit = await Permit.findOne({ permitNumber })
       .populate('route', 'name routeNumber')
       .populate('bus', 'registrationNumber')
@@ -253,10 +214,9 @@ const checkPermitValidity = async (req, res) => {
     });
   } catch (error) {
     console.error('Check permit validity error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
-      message: 'Error checking permit validity',
-      error: error.message,
+      message: error.message || 'Error checking permit validity',
     });
   }
 };
@@ -267,6 +227,5 @@ module.exports = {
   getPermitById,
   updatePermit,
   deletePermit,
-  getPermitStats,
   checkPermitValidity,
 };
