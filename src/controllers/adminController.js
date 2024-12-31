@@ -3,164 +3,180 @@ const Route = require('../models/routeModel');
 const Bus = require('../models/busModel');
 const Payment = require('../models/paymentModel');
 
-
+const createPermit = async (req, res) => {
+  const { permitNumber, issueDate, expiryDate, route, bus, operator, status } = req.body;
+  try {
+    const newPermit = new Permit({
+      permitNumber,
+      issueDate,
+      expiryDate,
+      route,
+      bus,
+      operator,
+      status,
+    });
+    await newPermit.save();
+    res.status(201).json({ message: 'Permit created successfully', newPermit });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating permit', error });
+  }
+};
 
 const createRoute = async (req, res) => {
-    const { name, startPoint, endPoint, schedule } = req.body;
-    try {
-      const newRoute = new Route({ name, startPoint, endPoint, schedule });
-      await newRoute.save();
-      res.status(201).json({ message: 'Route created successfully', newRoute });
-    } catch (error) {
-      res.status(400).json({ message: 'Error creating route', error });
-    }
-  };
-  
-  const updateRoute = async (req, res) => {
-    const { routeId } = req.params;
-    const updateData = req.body;
-    try {
-      const updatedRoute = await Route.findByIdAndUpdate(routeId, updateData, {
-        new: true,
-      });
-      if (!updatedRoute) {
-        return res.status(404).json({ message: 'Route not found' });
-      }
-      res.status(200).json(updatedRoute);
-    } catch (error) {
-      res.status(400).json({ message: 'Error updating route', error });
-    }
-  };
-  
-  const deleteRoute = async (req, res) => {
-    const { routeId } = req.params;
-    try {
-      const deletedRoute = await Route.findByIdAndDelete(routeId);
-      if (!deletedRoute) {
-        return res.status(404).json({ message: 'Route not found' });
-      }
-      res.status(200).json({ message: 'Route deleted successfully' });
-    } catch (error) {
-      res.status(400).json({ message: 'Error deleting route', error });
-    }
-  };
-  
-  const viewAllRoutes = async (req, res) => {
-    try {
-      const routes = await Route.find().populate('buses');
-      res.status(200).json({ success: true, data: routes });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching routes',
-        error: error.message,
-      });
-    }
-  };
-  
-  const viewRouteById = async (req, res) => {
-    const { routeId } = req.params;
-    try {
-      const route = await Route.findById(routeId).populate('buses');
-      if (!route) {
-        return res.status(404).json({ success: false, message: 'Route not found' });
-      }
-      res.status(200).json({ success: true, data: route });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching route',
-        error: error.message,
-      });
-    }
-  };
+  const { name, startPoint, endPoint, schedule } = req.body;
+  try {
+    const newRoute = new Route({ name, startPoint, endPoint, schedule });
+    await newRoute.save();
+    res.status(201).json({ message: 'Route created successfully', newRoute });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating route', error });
+  }
+};
 
-  const createBus = async (req, res) => {
-    const { route, busNumber, capacity } = req.body;
-    try {
-      const newBus = new Bus({
-        route,
-        busNumber,
-        capacity,
-        operator: req.user._id,
-      });
-  
-      await newBus.save();
-      res.status(201).json({ message: 'Bus created successfully', newBus });
-    } catch (error) {
-      res.status(400).json({ message: 'Error creating bus', error });
+const updateRoute = async (req, res) => {
+  const { routeId } = req.params;
+  const updateData = req.body;
+  try {
+    const updatedRoute = await Route.findByIdAndUpdate(routeId, updateData, {
+      new: true,
+    });
+    if (!updatedRoute) {
+      return res.status(404).json({ message: 'Route not found' });
     }
-  };
-  
-  const updateBus = async (req, res) => {
-    const { busId } = req.params;
-    const updateData = req.body;
-    try {
-      const updatedBus = await Bus.findOneAndUpdate({ _id: busId }, updateData, {
-        new: true,
-      });
-  
-      if (!updatedBus) {
-        return res.status(404).json({ message: 'Bus not found or not owned by you' });
-      }
-  
-      res.status(200).json(updatedBus);
-    } catch (error) {
-      res.status(400).json({ message: 'Error updating bus', error });
+    res.status(200).json(updatedRoute);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating route', error });
+  }
+};
+
+const deleteRoute = async (req, res) => {
+  const { routeId } = req.params;
+  try {
+    const deletedRoute = await Route.findByIdAndDelete(routeId);
+    if (!deletedRoute) {
+      return res.status(404).json({ message: 'Route not found' });
     }
-  };
-  
-  const deleteBus = async (req, res) => {
-    const { busId } = req.params;
-    try {
-      const deletedBus = await Bus.findOneAndDelete({
-        _id: busId,
-      });
-      if (!deletedBus) {
-        return res.status(404).json({ message: 'Bus not found or not owned by you' });
-      }
-  
-      res.status(200).json({ message: 'Bus deleted successfully' });
-    } catch (error) {
-      res.status(400).json({ message: 'Error deleting bus', error });
+    res.status(200).json({ message: 'Route deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: 'Error deleting route', error });
+  }
+};
+
+const viewAllRoutes = async (req, res) => {
+  try {
+    const routes = await Route.find().populate('buses');
+    res.status(200).json({ success: true, data: routes });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching routes',
+      error: error.message,
+    });
+  }
+};
+
+const viewRouteById = async (req, res) => {
+  const { routeId } = req.params;
+  try {
+    const route = await Route.findById(routeId).populate('buses');
+    if (!route) {
+      return res.status(404).json({ success: false, message: 'Route not found' });
     }
-  };
-  
-  const viewAllBuses = async (req, res) => {
-    try {
-      const buses = await Bus.find().populate('route');
-      res.status(200).json({ success: true, data: buses });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching buses',
-        error: error.message,
-      });
+    res.status(200).json({ success: true, data: route });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching route',
+      error: error.message,
+    });
+  }
+};
+
+const createBus = async (req, res) => {
+  const { route, busNumber, capacity } = req.body;
+  try {
+    const newBus = new Bus({
+      route,
+      busNumber,
+      capacity,
+      operator: req.user._id,
+    });
+
+    await newBus.save();
+    res.status(201).json({ message: 'Bus created successfully', newBus });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating bus', error });
+  }
+};
+
+const updateBus = async (req, res) => {
+  const { busId } = req.params;
+  const updateData = req.body;
+  try {
+    const updatedBus = await Bus.findOneAndUpdate({ _id: busId }, updateData, {
+      new: true,
+    });
+
+    if (!updatedBus) {
+      return res.status(404).json({ message: 'Bus not found or not owned by you' });
     }
-  };
-  
-  const viewBusById = async (req, res) => {
-    const { busId } = req.params;
-    try {
-      const bus = await Bus.findOne({
-        _id: busId,
-        operator: req.user._id,
-      }).populate('route');
-  
-      if (!bus) {
-        return res.status(404).json({ success: false, message: 'Bus not found or not owned by you' });
-      }
-  
-      res.status(200).json({ success: true, data: bus });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching bus',
-        error: error.message,
-      });
+
+    res.status(200).json(updatedBus);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating bus', error });
+  }
+};
+
+const deleteBus = async (req, res) => {
+  const { busId } = req.params;
+  try {
+    const deletedBus = await Bus.findOneAndDelete({
+      _id: busId,
+    });
+    if (!deletedBus) {
+      return res.status(404).json({ message: 'Bus not found or not owned by you' });
     }
-  };
-  
+
+    res.status(200).json({ message: 'Bus deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: 'Error deleting bus', error });
+  }
+};
+
+const viewAllBuses = async (req, res) => {
+  try {
+    const buses = await Bus.find().populate('route');
+    res.status(200).json({ success: true, data: buses });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching buses',
+      error: error.message,
+    });
+  }
+};
+
+const viewBusById = async (req, res) => {
+  const { busId } = req.params;
+  try {
+    const bus = await Bus.findOne({
+      _id: busId,
+      operator: req.user._id,
+    }).populate('route');
+
+    if (!bus) {
+      return res.status(404).json({ success: false, message: 'Bus not found or not owned by you' });
+    }
+
+    res.status(200).json({ success: true, data: bus });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching bus',
+      error: error.message,
+    });
+  }
+};
 
 const createUser = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -233,39 +249,38 @@ const viewUserById = async (req, res) => {
 };
 
 const viewAllPayments = async (req, res) => {
-    try {
-      const payments = await Payment.find().populate('booking');
-      res.status(200).json(payments);
-    } catch (error) {
-      res.status(400).json({ message: 'Error fetching payments', error });
+  try {
+    const payments = await Payment.find().populate('booking');
+    res.status(200).json(payments);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching payments', error });
+  }
+};
+
+const viewAllBusOperators = async (req, res) => {
+  try {
+    const operators = await User.find({ role: 'bus_operator' });
+    res.status(200).json(operators);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching bus operators', error });
+  }
+};
+
+const updateBusOperator = async (req, res) => {
+  const { userId } = req.params;
+  const updateData = req.body;
+  try {
+    const updatedOperator = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
+    if (!updatedOperator) {
+      return res.status(404).json({ message: 'Bus operator not found' });
     }
-  };
-  
-  const viewAllBusOperators = async (req, res) => {
-    try {
-      const operators = await User.find({ role: 'bus_operator' });
-      res.status(200).json(operators);
-    } catch (error) {
-      res.status(400).json({ message: 'Error fetching bus operators', error });
-    }
-  };
-  
-  const updateBusOperator = async (req, res) => {
-    const { userId } = req.params;
-    const updateData = req.body;
-    try {
-      const updatedOperator = await User.findByIdAndUpdate(userId, updateData, {
-        new: true,
-      });
-      if (!updatedOperator) {
-        return res.status(404).json({ message: 'Bus operator not found' });
-      }
-      res.status(200).json(updatedOperator);
-    } catch (error) {
-      res.status(400).json({ message: 'Error updating bus operator', error });
-    }
-  };
-  
+    res.status(200).json(updatedOperator);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating bus operator', error });
+  }
+};
 
 module.exports = {
   createUser,
@@ -285,6 +300,6 @@ module.exports = {
   viewBusById,
   viewAllBusOperators,
   updateBusOperator,
-  viewAllPayments
-
+  viewAllPayments,
+  createPermit,
 };

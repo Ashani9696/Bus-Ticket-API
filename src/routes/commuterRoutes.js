@@ -19,5 +19,4 @@ router.get('/bookings', commuterController.listBookings);
 
 router.post('/payments', commuterController.makePayment);
 
-
 module.exports = router;

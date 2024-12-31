@@ -25,5 +25,3 @@ router.put('/bookings/:bookingId/cancel', busOperatorController.cancelBooking);
 router.get('/payments', busOperatorController.getPayments);
 
 module.exports = router;
-
-

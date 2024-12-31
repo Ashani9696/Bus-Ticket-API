@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Bus Seat Booking System API
+  version: 1.0.0
+  description: API documentation for the Bus Seat Booking System
+  contact:
+    name: Your Name
+    email: your.email@example.com
+servers:
+  - url: http://localhost:5000
+paths:
+  /api/auth/login:
+    post:
+      summary: Login user
+      description: Authenticates the user and returns a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        200:
+          description: Successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        400:
+          description: Invalid credentials
+  /api/users:
+    get:
+      summary: Get all users
+      description: Returns a list of all users.
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    email:
+                      type: string
