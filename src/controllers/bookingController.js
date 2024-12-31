@@ -297,7 +297,7 @@ const getBookingDetails = async (req, res) => {
   try {
     const bookingId = req.params.bookingId;
 
-    const qrCodeData = await QRCode.toDataURL('http://google.com');
+    const qrCodeData = await QRCode.toDataURL(`${process.env.API_URL}/booking-details/${bookingId}`);
 
     const booking = await Booking.findById(bookingId)
       .populate('user', 'name email')
@@ -314,6 +314,7 @@ const getBookingDetails = async (req, res) => {
       });
     }
     booking.qrCodeData = qrCodeData;
+    
     res.render('booking', { booking: booking });
   } catch (error) {
     console.error('Error fetching booking details:', error);
