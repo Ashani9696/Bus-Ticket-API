@@ -15,25 +15,17 @@ const { userCreateValidationSchema, userUpdateValidationSchema } = require('../v
 const router = express.Router();
 router.use(protect);
 
-router.use(authorize('admin'));
-router.post('/user', userCreateValidationSchema, userController.createUser);
-router.get('/users', userController.getUsers);
-router.get('/users/:id', userController.getUserById);
-router.put('/users/:id', userUpdateValidationSchema, userController.updateUser);
-router.delete('/users/:id', userController.deleteUser);
-router.post('/users/:id/reset-password', userController.resetPassword);
+router.use(authorize('commuter', 'admin', 'bus_operator'));
+router.post('/booking', bookingController.bookSeats);
+router.delete('/booking/:bookingId/cancel', bookingController.cancelBooking);
+router.get('/user-bookings', bookingController.getUserBookings);
+router.get('/view-seats/:id', seatController.getAllSeatsWithDate);
 
-router.post('/permit', permitValidationSchema, permitController.createPermit);
-router.get('/permit', permitController.getAllPermits);
-router.get('/permit/:id', permitController.getPermitById);
-router.put('/permit/:id', permitUpdateValidationSchema, permitController.updatePermit);
-router.delete('/permit/:id', permitController.deletePermit);
-router.get('/permit/:permitNumber', permitController.checkPermitValidity);
+router.get('/route/calculate-fare', routeController.calculateFare);
+router.get('/route', routeController.getAllRoutes);
 
 router.use(authorize('admin', 'bus_operator'));
-router.get('/route/calculate-fare', routeController.calculateFare);
 router.post('/route', routeCreationValidationSchema, routeController.createRoute);
-router.get('/route', routeController.getAllRoutes);
 router.get('/route/:id', routeController.getRouteById);
 router.put('/route/:id', routeUpdateValidationSchema, routeController.updateRoute);
 router.delete('/route/:id', routeController.deleteRoute);
@@ -52,9 +44,23 @@ router.put('/bus/:id/seats', seatUpdateValidationSchema, seatController.updateSe
 router.put('/bus/:id/seats/:row/:column', seatController.updateSeat);
 router.delete('/bus/:id/seats', seatController.deleteSeatMatrix);
 
-router.use(authorize('commuter'));
-router.post('/booking', bookingController.bookSeats);
-router.delete('/booking/:bookingId/cancel', bookingController.cancelBooking);
+router.use(authorize('admin'));
+router.post('/user', userCreateValidationSchema, userController.createUser);
+router.get('/users', userController.getUsers);
+router.get('/users/:id', userController.getUserById);
+router.put('/users/:id', userUpdateValidationSchema, userController.updateUser);
+router.delete('/users/:id', userController.deleteUser);
+router.post('/users/:id/reset-password', userController.resetPassword);
+
+router.post('/permit', permitValidationSchema, permitController.createPermit);
+router.get('/permit', permitController.getAllPermits);
+router.get('/permit/:id', permitController.getPermitById);
+router.put('/permit/:id', permitUpdateValidationSchema, permitController.updatePermit);
+router.delete('/permit/:id', permitController.deletePermit);
+router.get('/permit/check/:permitNumber', permitController.checkPermitValidity);
+
 router.get('/bookings', bookingController.getAllBookings);
+
+
 
 module.exports = router;

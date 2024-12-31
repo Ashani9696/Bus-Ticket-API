@@ -1,5 +1,5 @@
 class ErrorHandler extends Error {
-  constructor(message, statusCode) {
+  constructor(statusCode, message) {
     super(message);
     this.statusCode = statusCode;
     this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
@@ -8,32 +8,33 @@ class ErrorHandler extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
+  // Static methods for convenience, but maintaining original constructor pattern
   static badRequest(message = 'Bad Request') {
-    return new ErrorHandler(message, 400);
+    return new ErrorHandler(400, message);
   }
 
   static unauthorized(message = 'Unauthorized') {
-    return new ErrorHandler(message, 401);
+    return new ErrorHandler(401, message);
   }
 
   static forbidden(message = 'Forbidden') {
-    return new ErrorHandler(message, 403);
+    return new ErrorHandler(403, message);
   }
 
   static notFound(message = 'Not Found') {
-    return new ErrorHandler(message, 404);
+    return new ErrorHandler(404, message);
   }
 
   static conflict(message = 'Conflict') {
-    return new ErrorHandler(message, 409);
+    return new ErrorHandler(409, message);
   }
 
   static validationError(message = 'Validation Error') {
-    return new ErrorHandler(message, 422);
+    return new ErrorHandler(422, message);
   }
 
   static internalError(message = 'Internal Server Error') {
-    return new ErrorHandler(message, 500);
+    return new ErrorHandler(500, message);
   }
 }
 

@@ -153,11 +153,7 @@ const updateRoute = async (req, res) => {
 
 const deleteRoute = async (req, res) => {
   try {
-    const route = await Route.findByIdAndUpdate(req.params.id, {
-      status: 'Discontinued',
-      'metadata.lastUpdated': Date.now(),
-      'metadata.updatedBy': req.user._id,
-    });
+    const route = await Route.findByIdAndDelete(req.params.id);
 
     if (!route) {
       throw new ErrorHandler(404, 'Route not found');
@@ -176,6 +172,7 @@ const deleteRoute = async (req, res) => {
     });
   }
 };
+
 
 const calculateFare = async (req, res) => {
   try {

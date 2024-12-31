@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
     name,
     email,
     password,
-    role: role || ['user'],
+    role: role || ['commuter'],
   });
   res.status(201).json({
     id: user._id,
@@ -62,6 +62,7 @@ const loginUser = async (req, res) => {
 
 const refreshToken = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  
   if (!refreshToken || !refreshTokens.includes(refreshToken)) {
     return res.status(403).json({ message: 'Invalid refresh token' });
   }

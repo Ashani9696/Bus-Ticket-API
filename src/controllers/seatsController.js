@@ -1,4 +1,6 @@
 const Bus = require('../models/busModel');
+const Booking = require('../models/bookingModel');
+const Route = require('../models/routeModel');
 
 const validateSeatType = (type) => {
   const validTypes = ['window', 'middle', 'aisle'];
@@ -152,6 +154,90 @@ const getAllSeats = async (req, res) => {
       data: {
         matrix: seatMatrix,
         stats,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getAllSeatsWithDate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date parameter is required',
+      });
+    }
+
+    const bus = await Bus.findById(id);
+    if (!bus) {
+      return res.status(404).json({
+        success: false,
+        message: 'Bus not found',
+      });
+    }
+
+    const seatMatrix = bus.getSeatMatrix();
+
+    const bookings = await Booking.find({
+      routeId: id,
+      date: {
+        $gte: new Date(new Date(date).setHours(0, 0, 0)),
+        $lt: new Date(new Date(date).setHours(23, 59, 59)),
+      },
+      status: { $ne: 'cancelled' },
+    });
+
+    const bookedSeats = new Map();
+    bookings.forEach((booking) => {
+      booking.seats.forEach((seat) => {
+        bookedSeats.set(seat.seatId, true);
+      });
+    });
+
+    const updatedSeatMatrix = seatMatrix.map((row) => {
+      return row.map((seat) => {
+        return {
+          ...seat,
+          isBlocked: seat.isBlocked || bookedSeats.has(seat._id),
+        };
+      });
+    });
+
+    const stats = {
+      totalSeats: 0,
+      blockedSeats: 0,
+      aisleSeats: 0,
+      bookedSeats: bookedSeats.size,
+      seatTypes: {
+        window: 0,
+        middle: 0,
+        aisle: 0,
+      },
+    };
+
+    updatedSeatMatrix.forEach((row) => {
+      row.forEach((seat) => {
+        stats.totalSeats++;
+        if (seat.isBlocked) stats.blockedSeats++;
+        if (seat.isAisle) stats.aisleSeats++;
+        stats.seatTypes[seat.type]++;
+      });
+    });
+
+    res.json({
+      success: true,
+      data: {
+        matrix: updatedSeatMatrix,
+        stats,
+        date: date,
       },
     });
   } catch (error) {
@@ -350,4 +436,5 @@ module.exports = {
   updateSeatMatrix,
   updateSeat,
   deleteSeatMatrix,
+  getAllSeatsWithDate,
 };

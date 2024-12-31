@@ -114,11 +114,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /users/67555515f59a4567a5b172b8:
+  /users/{id}:
     get:
       tags:
         - User Management
       summary: View Single User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the user view
       security:
         - bearerAuth: []
       responses:
@@ -126,11 +133,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /users/67557cc724cfc8c600a5d374:
+  /users/{id}:
     put:
       tags:
         - User Management
       summary: Update a User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the user to update
       requestBody:
         content:
           application/json:
@@ -151,6 +165,13 @@ paths:
       tags:
         - User Management
       summary: Delete a User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the user to delete
       security:
         - bearerAuth: []
       responses:
@@ -227,11 +248,19 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /route/677338b307bbc8b7481ab5fc:
+  paths:
+  /route/{id}:
     get:
       tags:
         - Routes Management
       summary: View Single Route
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the route to view
       security:
         - bearerAuth: []
       responses:
@@ -239,10 +268,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     put:
       tags:
         - Routes Management
       summary: Update a Route
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the route to update
       requestBody:
         content:
           application/json:
@@ -263,10 +300,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     delete:
       tags:
         - Routes Management
       summary: Delete a Route
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the route to delete
       security:
         - bearerAuth: []
       responses:
@@ -274,6 +319,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
   /route/calculate-fare:
     get:
       tags:
@@ -282,7 +328,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: routeId
+        - name: id
           in: query
           schema:
             type: string
@@ -302,11 +348,19 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /route/677358d56fbafb47bd73420c/assign-busses:
+
+  /route/{id}/assign-buses:
     put:
       tags:
         - Routes Management
-      summary: Busses Assign to Route
+      summary: Assign Buses to a Route
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the route to assign buses to
       requestBody:
         content:
           application/json:
@@ -323,6 +377,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
+  paths:
   /bus:
     post:
       tags:
@@ -353,6 +408,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
   /buses:
     get:
       tags:
@@ -365,11 +421,19 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /bus/677367d67d392761f0e3e13e:
+
+  /bus/{id}:
     get:
       tags:
         - Bus Management
       summary: View Single Bus
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to retrieve
       security:
         - bearerAuth: []
       responses:
@@ -377,10 +441,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     put:
       tags:
         - Bus Management
       summary: Update a Bus
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to update
       requestBody:
         content:
           application/json:
@@ -404,11 +476,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /bus/67734f296fbafb47bd7341cd:
+
     delete:
       tags:
         - Bus Management
       summary: Delete a Bus
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to delete
       security:
         - bearerAuth: []
       responses:
@@ -416,11 +495,19 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /bus/67738293664192688d3a39dc/seats:
+
+  /bus/{id}/seats:
     post:
       tags:
         - Bus Management
       summary: Set Seat Layout
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to set the seat layout for
       requestBody:
         content:
           application/json:
@@ -459,16 +546,6 @@ paths:
                     C:
                       type: aisle
                       isAisle: true
-                  '3':
-                    A:
-                      type: window
-                      isAisle: false
-                    B:
-                      type: middle
-                      isAisle: false
-                    C:
-                      type: aisle
-                      isAisle: true
       security:
         - bearerAuth: []
       responses:
@@ -476,10 +553,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     get:
       tags:
         - Bus Management
       summary: Get Seat Layout
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to get the seat layout for
       security:
         - bearerAuth: []
       responses:
@@ -487,11 +572,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /bus/67737fa7c5d9df85a911ff06/seats:
+
     put:
       tags:
         - Bus Management
-      summary: Update a Seat
+      summary: Update Seat Layout
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to update the seat layout for
       requestBody:
         content:
           application/json:
@@ -520,26 +612,6 @@ paths:
                     C:
                       type: aisle
                       isAisle: true
-                  '2':
-                    A:
-                      type: window
-                      isAisle: false
-                    B:
-                      type: middle
-                      isAisle: false
-                    C:
-                      type: aisle
-                      isAisle: true
-                  '3':
-                    A:
-                      type: window
-                      isAisle: false
-                    B:
-                      type: middle
-                      isAisle: false
-                    C:
-                      type: aisle
-                      isAisle: true
       security:
         - bearerAuth: []
       responses:
@@ -547,10 +619,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     delete:
       tags:
         - Bus Management
       summary: Delete Seat Matrix
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus to delete the seat layout for
       security:
         - bearerAuth: []
       responses:
@@ -558,11 +638,31 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /bus/67737fa7c5d9df85a911ff06/seats/1/A:
+
+  /bus/{id}/seats/{row}/{column}:
     put:
       tags:
         - Bus Management
       summary: Update Single Seat
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus
+        - in: path
+          name: row
+          required: true
+          schema:
+            type: string
+          description: Row of the seat
+        - in: path
+          name: column
+          required: true
+          schema:
+            type: string
+          description: Column of the seat
       requestBody:
         content:
           application/json:
@@ -579,10 +679,30 @@ paths:
           description: Successful response
           content:
             application/json: {}
+
     get:
       tags:
         - Bus Management
       summary: Get Single Seat
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the bus
+        - in: path
+          name: row
+          required: true
+          schema:
+            type: string
+          description: Row of the seat
+        - in: path
+          name: column
+          required: true
+          schema:
+            type: string
+          description: Column of the seat
       security:
         - bearerAuth: []
       responses:
@@ -618,7 +738,7 @@ paths:
     get:
       tags:
         - Permit Management
-      summary: View All Permit
+      summary: View All Permits
       security:
         - bearerAuth: []
       responses:
@@ -626,11 +746,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /permit/67740133f269b60a1b42d50c:
+
+  /permit/{id}:
     put:
       tags:
         - Permit Management
       summary: Update Permit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -655,6 +782,12 @@ paths:
       tags:
         - Permit Management
       summary: Delete Permit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       security:
         - bearerAuth: []
       responses:
@@ -666,6 +799,12 @@ paths:
       tags:
         - Permit Management
       summary: View Single Permit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       security:
         - bearerAuth: []
       responses:
@@ -673,11 +812,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /permit/PN12345:
+
+  /permit/check/{permitNumber}:
     get:
       tags:
         - Permit Management
       summary: Check Permit Validity
+      parameters:
+        - in: path
+          name: permitNumber
+          required: true
+          schema:
+            type: string
       security:
         - bearerAuth: []
       responses:
@@ -685,7 +831,8 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /admin/booking:
+
+  /booking:
     post:
       tags:
         - Bookings & Payments
@@ -698,11 +845,11 @@ paths:
               example:
                 from: City Center
                 to: Green Park
-                date: 2025-01-3
+                date: 2025-01-03
                 seatIds:
                   - 6773839b664192688d3a39ef
                   - 6773839b664192688d3a39f0
-                routeId: 677358d56fbafb47bd73420c
+                id: 677358d56fbafb47bd73420c
                 paymentDetails:
                   method: credit_card
                   cardNumber: '4111111111111111'
@@ -714,11 +861,18 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /admin/booking/6773ce032f28d014e3fa3bae/cancel:
+
+  /booking/{bookingId}/cancel:
     delete:
       tags:
         - Bookings & Payments
       summary: Cancel Booking
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
       security:
         - bearerAuth: []
       responses:
@@ -726,7 +880,8 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /admin/bookings:
+
+  /bookings:
     get:
       tags:
         - Bookings & Payments
@@ -738,11 +893,33 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /booking-details/6773ce032f28d014e3fa3bae:
+
+  /user-bookings:
     get:
       tags:
-        - default
-      summary: New Request
+        - Bookings & Payments
+      summary: View All Bookings for Specific User
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+
+  /booking-details/{bookingId}:
+    get:
+      tags:
+        - Bookings & Payments
+      summary: Get Booking Details
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: OK
@@ -758,7 +935,7 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '766'
+                example: 766
             ETag:
               schema:
                 type: string
@@ -779,37 +956,37 @@ paths:
             application/json:
               schema:
                 type: object
-              example:
-                success: true
-                booking:
-                  payment:
-                    details:
-                      cardDetails:
-                        lastFourDigits: '1111'
-                        cardType: visa
-                      method: credit_card
-                      paidAmount: 100
-                      paidAt: '2024-12-31T10:57:07.316Z'
-                    required: true
-                    status: refunded
-                  _id: 6773ce032f28d014e3fa3bae
-                  user:
-                    _id: 6772843f3fdcb343dfe9fab8
-                    name: Admin User
-                    email: learn.dev0603@gmail.com
-                  seats:
-                    - seatId: 6773839b664192688d3a39ef
-                      label: 1A
-                      _id: 6773ce032f28d014e3fa3baf
-                    - seatId: 6773839b664192688d3a39f0
-                      label: 1B
-                      _id: 6773ce032f28d014e3fa3bb0
-                  routeId:
-                    _id: 677358d56fbafb47bd73420c
-                    name: City Center to Green Park
-                  date: '2025-01-02T18:30:00.000Z'
-                  totalFare: 100
-                  status: cancelled
-                  createdAt: '2024-12-31T10:57:07.317Z'
-                  updatedAt: '2024-12-31T10:57:07.317Z'
-                  __v: 0
+                example:
+                  success: true
+                  booking:
+                    payment:
+                      details:
+                        cardDetails:
+                          lastFourDigits: '1111'
+                          cardType: visa
+                        method: credit_card
+                        paidAmount: 100
+                        paidAt: '2024-12-31T10:57:07.316Z'
+                      required: true
+                      status: refunded
+                    _id: 6773ce032f28d014e3fa3bae
+                    user:
+                      _id: 6772843f3fdcb343dfe9fab8
+                      name: Admin User
+                      email: learn.dev0603@gmail.com
+                    seats:
+                      - seatId: 6773839b664192688d3a39ef
+                        label: 1A
+                        _id: 6773ce032f28d014e3fa3baf
+                      - seatId: 6773839b664192688d3a39f0
+                        label: 1B
+                        _id: 6773ce032f28d014e3fa3bb0
+                    id:
+                      _id: 677358d56fbafb47bd73420c
+                      name: City Center to Green Park
+                    date: '2025-01-02T18:30:00.000Z'
+                    totalFare: 100
+                    status: cancelled
+                    createdAt: '2024-12-31T10:57:07.317Z'
+                    updatedAt: '2024-12-31T10:57:07.317Z'
+                    __v: 0

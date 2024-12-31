@@ -37,32 +37,45 @@ const createPermit = async (req, res) => {
   }
 };
 
-// Get all permits with optional filters
 const getAllPermits = async (req, res) => {
   try {
     const { page = 1, limit = 10, status, operator, route, startDate, endDate, sort = '-createdAt' } = req.query;
 
-    // Initialize filter object
+    // Build filter object with debug logging
     const filter = {};
 
-    // Apply filters only if they exist
-    if (status) filter.status = status;
-    if (operator) filter.operator = operator;
-    if (route) filter.route = route;
+    if (status) {
+      filter.status = status;
+    }
+
+    if (operator) {
+      filter.operator = operator;
+    }
+
+    if (route) {
+      filter.route = route;
+    }
+
     if (startDate || endDate) {
       filter.issueDate = {};
-      if (startDate) filter.issueDate.$gte = new Date(startDate);
-      if (endDate) filter.issueDate.$lte = new Date(endDate);
+      if (startDate) {
+        filter.issueDate.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        filter.issueDate.$lte = new Date(endDate);
+      }
     }
 
-    // Apply role-based filtering if not admin
-    if (req.user.role !== 'admin') {
+    // Fixed role check for array of roles
+    if (req.user && !req.user.role.includes('admin')) {
       filter.operator = req.user._id;
+      console.log('Added operator filter for non-admin:', req.user._id);
     }
 
-    console.log('Filter object:', filter); // Debug log for the filter object
+    // Perform initial raw find to check data
+    const rawCount = await Permit.countDocuments({});
 
-    // Fetch permits with or without filters
+    // Execute main query with error handling
     const permits = await Permit.find(filter)
       .populate('route', 'name routeNumber')
       .populate('bus', 'registrationNumber')
@@ -70,9 +83,15 @@ const getAllPermits = async (req, res) => {
       .sort(sort)
       .limit(parseInt(limit))
       .skip((page - 1) * parseInt(limit))
+      .lean()
       .exec();
 
-    // Get total count of permits matching the filter
+    console.log('Query results count:', permits.length);
+
+    if (permits.length === 0) {
+      const samplePermit = await Permit.findOne({}).lean();
+    }
+
     const total = await Permit.countDocuments(filter);
 
     res.status(200).json({
@@ -84,13 +103,13 @@ const getAllPermits = async (req, res) => {
     });
   } catch (error) {
     console.error('Get permits error:', error);
+    console.error('Error stack:', error.stack);
     res.status(error.statusCode || 500).json({
       success: false,
       message: error.message || 'Error retrieving permits',
     });
   }
 };
-
 
 // Get a permit by ID
 const getPermitById = async (req, res) => {
@@ -160,12 +179,7 @@ const updatePermit = async (req, res) => {
 // Delete a permit (suspend it)
 const deletePermit = async (req, res) => {
   try {
-    const permit = await Permit.findByIdAndUpdate(req.params.id, {
-      status: 'suspended',
-      isDeleted: true,
-      deletedAt: new Date(),
-      deletedBy: req.user._id,
-    });
+    const permit = await Permit.findByIdAndDelete(req.params.id);
 
     if (!permit) {
       return res.status(404).json({
@@ -180,12 +194,13 @@ const deletePermit = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete permit error:', error);
-    res.status(error.statusCode || 500).json({
+    res.status(500).json({
       success: false,
       message: error.message || 'Failed to delete permit',
     });
   }
 };
+
 
 const checkPermitValidity = async (req, res) => {
   try {
