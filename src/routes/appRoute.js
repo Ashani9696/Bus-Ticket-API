@@ -6,6 +6,7 @@ const seatController = require('../controllers/seatsController');
 const bookingController = require('../controllers/bookingController');
 const userController = require('../controllers/userController');
 const { authorize, protect } = require('../middlewares/authMiddleware');
+const permitValidationMiddleware = require('../validations/permit/createSchema');
 
 const router = express.Router();
 router.use(protect);
@@ -18,7 +19,7 @@ router.put('/users/:id', userController.updateUser);
 router.delete('/users/:id', userController.deleteUser);
 router.post('/users/:id/reset-password', userController.resetPassword);
 
-router.post('/permit', permitController.createPermit);
+router.post('/permit', permitValidationMiddleware, permitController.createPermit);
 router.get('/permit', permitController.getAllPermits);
 router.get('/permit/:id', permitController.getPermitById);
 router.put('/permit/:id', permitController.updatePermit);

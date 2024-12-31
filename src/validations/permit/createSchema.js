@@ -77,6 +77,7 @@ const createPermitValidation = {
       .required()
       .custom((value, helpers) => validateObjectId(value, helpers, 'route'))
       .external(async (value, helpers) => {
+        console.log('Validating route:', value);
         return await validateEntityExists(value, helpers, Route, 'Route');
       })
       .messages(customErrorMessages),
@@ -115,6 +116,7 @@ const createPermitValidation = {
       }),
   }).custom(async (value, helpers) => {
     try {
+      // Check if permit number already exists
       const existingPermit = await Permit.findOne({
         permitNumber: value.permitNumber,
       });
@@ -122,6 +124,7 @@ const createPermitValidation = {
         return helpers.message('This permit number is already in use. Please use a different number');
       }
 
+      // Check if the bus already has an active permit
       const activePermit = await Permit.findOne({
         bus: value.bus,
         status: 'active',

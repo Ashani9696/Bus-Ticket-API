@@ -2,721 +2,814 @@ openapi: 3.0.0
 info:
   title: NIBM Bus Ticket Booking API
   version: 1.0.0
-  description: API documentation for the NIBM Bus Ticket Booking System
-  contact:
-    name: Your Name
-    email: your.email@example.com
 servers:
-  - url: http://localhost:5000
-
+  - url: https://ashanidilanka.com/api/v1
+  - url: http://localhost:5000/api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
 tags:
-  - name: Authentication
-    description: Endpoints related to user authentication
+  - name: Auth
   - name: User Management
-    description: Endpoints for managing users
-
-# Authentication Endpoints
+  - name: Routes Management
+  - name: Bus Management
+  - name: Permit Management
+  - name: Bookings & Payments
 paths:
   /auth/register:
     post:
       tags:
-        - Authentication
-      summary: Register a new user
-      description: Creates a new user account with the specified role.
+        - Auth
+      summary: Register New User
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                name:
-                  type: string
-                  example: Admin User
-                email:
-                  type: string
-                  format: email
-                  example: learn.dev0603@gmail.com
-                password:
-                  type: string
-                  example: password123
-                role:
-                  type: string
-                  enum: [admin, bus_operator, user]
-                  example: admin
-              required:
-                - name
-                - email
-                - password
-                - role
+              example:
+                name: Admin User
+                email: learn.dev0603@gmail.com
+                password: password123
+                role: admin
       responses:
-        201:
-          description: User successfully registered
-        400:
-          description: Invalid input or duplicate email
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /auth/login:
     post:
       tags:
-        - Authentication
-      summary: Login user
-      description: Authenticates the user and returns a JWT token.
+        - Auth
+      summary: User Login
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: learn.dev0603@gmail.com
-                password:
-                  type: string
-                  example: password123
-              required:
-                - email
-                - password
+              example:
+                email: learn.dev0603@gmail.com
+                password: password123
       responses:
-        200:
-          description: Successfully logged in
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: JWT access token
-        400:
-          description: Invalid credentials
+            application/json: {}
   /auth/refresh-token:
     post:
       tags:
-        - Authentication
-      summary: Refresh JWT token
-      description: Returns a new JWT token.
+        - Auth
+      summary: Refresh Token
+      requestBody:
+        content: {}
       responses:
-        200:
-          description: Successfully refreshed token
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: New JWT access token
-        401:
-          description: Unauthorized or expired refresh token
+            application/json: {}
   /auth/logout:
     post:
       tags:
-        - Authentication
-      summary: Logout user
-      description: Logs out the user and invalidates the token.
+        - Auth
+      summary: User Logout
+      requestBody:
+        content: {}
       responses:
-        200:
-          description: Successfully logged out
-        401:
-          description: Unauthorized or invalid token
-
-# User Management Endpoints
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /user:
     post:
       tags:
         - User Management
-      summary: Create a new user
-      description: Creates a new user with the specified details and role.
-      security:
-        - bearerAuth: []
+      summary: Create User
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                name:
-                  type: string
-                  example: operator User
-                email:
-                  type: string
-                  format: email
-                  example: operator@example.com
-                password:
-                  type: string
-                  example: securepassword
-                role:
-                  type: string
-                  enum: [admin, bus_operator, user]
-                  example: bus_operator
-              required:
-                - name
-                - email
-                - password
-                - role
+              example:
+                name: operator User
+                email: operator@example.com
+                password: securepassword
+                role: bus_operator
+      security:
+        - bearerAuth: []
       responses:
-        201:
-          description: User successfully created
-        400:
-          description: Invalid input or duplicate email
-
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /users:
     get:
       tags:
         - User Management
-      summary: View all users
-      description: Returns a list of all registered users.
+      summary: View All Users
       security:
         - bearerAuth: []
       responses:
-        200:
-          description: List of users
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      example: 67555515f59a4567a5b172b8
-                    name:
-                      type: string
-                      example: Operator User
-                    email:
-                      type: string
-                      format: email
-                      example: operator@example.com
-                    role:
-                      type: string
-                      enum: [admin, bus_operator, user]
-                      example: bus_operator
-
-  /users/{id}:
+            application/json: {}
+  /users/67555515f59a4567a5b172b8:
     get:
       tags:
         - User Management
-      summary: View a single user
-      description: Fetches details of a user by their unique ID.
+      summary: View Single User
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 67555515f59a4567a5b172b8
-          description: The unique ID of the user.
       responses:
-        200:
-          description: User details
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: 67555515f59a4567a5b172b8
-                  name:
-                    type: string
-                    example: Operator User
-                  email:
-                    type: string
-                    format: email
-                    example: operator@example.com
-                  role:
-                    type: string
-                    enum: [admin, bus_operator, user]
-                    example: bus_operator
-        404:
-          description: User not found
-
+            application/json: {}
+  /users/67557cc724cfc8c600a5d374:
     put:
       tags:
         - User Management
-      summary: Update a user
-      description: Updates the details of a user by their unique ID.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 67557cc724cfc8c600a5d374
-          description: The unique ID of the user.
+      summary: Update a User
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                name:
-                  type: string
-                  example: John Doe
-                email:
-                  type: string
-                  format: email
-                  example: john.doe@example.com
-                role:
-                  type: string
-                  enum: [admin, bus_operator, user]
-                  example: commuter
-              required:
-                - name
-                - email
-                - role
+              example:
+                name: John Doe
+                email: john.doe@example.com
+                role: commuter
+      security:
+        - bearerAuth: []
       responses:
-        200:
-          description: User successfully updated
-        404:
-          description: User not found
-
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
     delete:
       tags:
         - User Management
-      summary: Delete a user
-      description: Deletes a user by their unique ID.
+      summary: Delete a User
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 67557cc724cfc8c600a5d374
-          description: The unique ID of the user.
       responses:
-        200:
-          description: User successfully deleted
-        404:
-          description: User not found
-  
-  # Routes Management Endpoints
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /route:
     post:
       tags:
         - Routes Management
-      summary: Create a new route
-      description: Creates a new bus route with its details, including stops, schedules, and fares.
-      security:
-        - bearerAuth: []
+      summary: Create a Route
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                routeNumber:
-                  type: string
-                  example: R001
-                name:
-                  type: string
-                  example: City Center to Green Park
-                category:
-                  type: string
-                  example: Local
+              example:
+                routeNumber: R001
+                name: City Center to Green Park
+                category: Local
                 stops:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                        example: City Center
-                      location:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            example: Point
-                          coordinates:
-                            type: array
-                            items:
-                              type: number
-                              example: [79.8612, 6.9271]
-                      distanceFromStart:
-                        type: number
-                        example: 0
-                      estimatedTime:
-                        type: number
-                        example: 0
+                  - name: City Center
+                    location:
+                      type: Point
+                      coordinates:
+                        - 79.8612
+                        - 6.9271
+                    distanceFromStart: 0
+                    estimatedTime: 0
+                  - name: Green Park
+                    location:
+                      type: Point
+                      coordinates:
+                        - 79.87
+                        - 6.91
+                    distanceFromStart: 5
+                    estimatedTime: 15
                 schedules:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      departureTime:
-                        type: string
-                        example: 08:00
-                      operatingDays:
-                        type: array
-                        items:
-                          type: string
-                          example: Monday
+                  - departureTime: '08:00'
+                    operatingDays:
+                      - Monday
+                      - Tuesday
+                      - Wednesday
+                      - Thursday
+                      - Friday
                 fares:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      fromStop:
-                        type: string
-                        example: City Center
-                      toStop:
-                        type: string
-                        example: Green Park
-                      amount:
-                        type: number
-                        example: 50
-                distance:
-                  type: number
-                  example: 5
-                estimatedDuration:
-                  type: number
-                  example: 15
+                  - fromStop: City Center
+                    toStop: Green Park
+                    amount: 50
+                distance: 5
+                estimatedDuration: 15
                 restrictions:
-                  type: object
-                  properties:
-                    maxCapacity:
-                      type: number
-                      example: 50
-                    allowStanding:
-                      type: boolean
-                      example: true
+                  maxCapacity: 50
+                  allowStanding: true
                 features:
-                  type: object
-                  properties:
-                    hasWifi:
-                      type: boolean
-                      example: false
-                    hasAC:
-                      type: boolean
-                      example: true
-              required:
-                - routeNumber
-                - name
-                - category
-                - stops
-                - schedules
-                - fares
-                - distance
-                - estimatedDuration
-                - restrictions
+                  hasWifi: false
+                  hasAC: true
+      security:
+        - bearerAuth: []
       responses:
-        201:
-          description: Route successfully created
-        400:
-          description: Invalid input
-
-  /route:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
     get:
       tags:
         - Routes Management
-      summary: View all routes
-      description: Returns a list of all routes with optional filters for specific stops, dates, etc.
+      summary: View All Routes
       security:
         - bearerAuth: []
-      parameters:
-        - name: from
-          in: query
-          required: false
-          schema:
-            type: string
-            example: City Center
-        - name: to
-          in: query
-          required: false
-          schema:
-            type: string
-            example: Green Park
-        - name: date
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date
-            example: 2025-01-02
       responses:
-        200:
-          description: List of routes
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    routeNumber:
-                      type: string
-                      example: R001
-                    name:
-                      type: string
-                      example: City Center to Green Park
-                    category:
-                      type: string
-                      example: Local
-                    stops:
-                      type: array
-                      items:
-                        type: string
-                        example: City Center
-                    schedules:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          departureTime:
-                            type: string
-                            example: 08:00
-                          operatingDays:
-                            type: array
-                            items:
-                              type: string
-                              example: Monday
-        400:
-          description: Invalid parameters
-
-  /route/{id}:
+            application/json: {}
+  /route/677338b307bbc8b7481ab5fc:
     get:
       tags:
         - Routes Management
-      summary: View a single route
-      description: Fetches details of a specific route by its unique ID.
+      summary: View Single Route
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 677338b307bbc8b7481ab5fc
       responses:
-        200:
-          description: Route details
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  routeNumber:
-                    type: string
-                    example: R001
-                  name:
-                    type: string
-                    example: City Center to Green Park
-                  category:
-                    type: string
-                    example: Local
-                  stops:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: City Center
-                        location:
-                          type: object
-                          properties:
-                            type:
-                              type: string
-                              example: Point
-                            coordinates:
-                              type: array
-                              items:
-                                type: number
-                                example: [79.8612, 6.9271]
-                  schedules:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        departureTime:
-                          type: string
-                          example: 08:00
-                        operatingDays:
-                          type: array
-                          items:
-                            type: string
-                            example: Monday
-                  fares:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        fromStop:
-                          type: string
-                          example: City Center
-                        toStop:
-                          type: string
-                          example: Green Park
-                        amount:
-                          type: number
-                          example: 50
-                  distance:
-                    type: number
-                    example: 5
-                  estimatedDuration:
-                    type: number
-                    example: 15
-        404:
-          description: Route not found
-
+            application/json: {}
     put:
       tags:
         - Routes Management
-      summary: Update a route
-      description: Updates the details of an existing route by its unique ID.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 677338b307bbc8b7481ab5fc
+      summary: Update a Route
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                name:
-                  type: string
-                  example: Updated Route Name
-                category:
-                  type: string
-                  example: Express
-                distance:
-                  type: number
-                  example: 10
-                estimatedDuration:
-                  type: number
-                  example: 25
+              example:
+                name: Updated Route Name
+                category: Express
+                distance: 10
+                estimatedDuration: 25
                 features:
-                  type: object
-                  properties:
-                    hasWifi:
-                      type: boolean
-                      example: true
-                    hasAC:
-                      type: boolean
-                      example: true
+                  hasWifi: true
+                  hasAC: true
+      security:
+        - bearerAuth: []
       responses:
-        200:
-          description: Route successfully updated
-        404:
-          description: Route not found
-
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
     delete:
       tags:
         - Routes Management
-      summary: Delete a route
-      description: Deletes a specific route by its unique ID.
+      summary: Delete a Route
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 677338b307bbc8b7481ab5fc
       responses:
-        200:
-          description: Route successfully deleted
-        404:
-          description: Route not found
-
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /route/calculate-fare:
     get:
       tags:
         - Routes Management
-      summary: Calculate fare between two stops on a route
-      description: Computes the fare between two stops on a specific route.
+      summary: Calculate Fare
       security:
         - bearerAuth: []
       parameters:
         - name: routeId
           in: query
-          required: true
           schema:
             type: string
-            example: 677338b307bbc8b7481ab5fc
+          example: 677338b307bbc8b7481ab5fc
         - name: startStop
           in: query
-          required: true
           schema:
             type: string
-            example: City Center
+          example: City Center
         - name: endStop
           in: query
-          required: true
           schema:
             type: string
-            example: Green Park
+          example: Green Park
       responses:
-        200:
-          description: Fare calculated successfully
+        '200':
+          description: Successful response
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  amount:
-                    type: number
-                    example: 50
-        400:
-          description: Invalid parameters
-
-  /route/{id}/assign-busses:
+            application/json: {}
+  /route/677358d56fbafb47bd73420c/assign-busses:
     put:
       tags:
         - Routes Management
-      summary: Assign buses to a route
-      description: Assigns buses to a specific route with their schedules.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 677358d56fbafb47bd73420c
+      summary: Busses Assign to Route
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
+              example:
                 buses:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      bus:
-                        type: string
-                        example: 67738293664192688d3a39dc
-                      schedule:
-                        type: string
-                        example: 677358d56fbafb47bd73420f
+                  - bus: 67738293664192688d3a39dc
+                    schedule: 677358d56fbafb47bd73420f
+      security:
+        - bearerAuth: []
       responses:
-        200:
-          description: Buses successfully assigned to the route
-        400:
-          description: Invalid input
-
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus:
+    post:
+      tags:
+        - Bus Management
+      summary: Create a Bus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                registrationNumber: AB123CD
+                model: Volvo B9R
+                manufacturer: Volvo
+                capacity:
+                  seating: 40
+                  standing: 5
+                features:
+                  hasAC: true
+                  hasWifi: true
+                  hasUSBCharging: true
+                  hasEntertainmentSystem: true
+                busType: luxury
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /buses:
+    get:
+      tags:
+        - Bus Management
+      summary: View All Buses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus/677367d67d392761f0e3e13e:
+    get:
+      tags:
+        - Bus Management
+      summary: View Single Bus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Bus Management
+      summary: Update a Bus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                model: Volvo B11R
+                manufacturer: Volvo
+                capacity:
+                  seating: 45
+                  standing: 5
+                features:
+                  hasAC: true
+                  hasWifi: true
+                  hasUSBCharging: true
+                  hasEntertainmentSystem: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus/67734f296fbafb47bd7341cd:
+    delete:
+      tags:
+        - Bus Management
+      summary: Delete a Bus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus/67738293664192688d3a39dc/seats:
+    post:
+      tags:
+        - Bus Management
+      summary: Set Seat Layout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                rows: 3
+                columnLayouts:
+                  - - A
+                    - B
+                    - C
+                  - - A
+                    - B
+                    - C
+                  - - A
+                    - B
+                    - C
+                seatTypes:
+                  '1':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+                  '2':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+                  '3':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Bus Management
+      summary: Get Seat Layout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus/67737fa7c5d9df85a911ff06/seats:
+    put:
+      tags:
+        - Bus Management
+      summary: Update a Seat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                rows: 3
+                columnLayouts:
+                  - - A
+                    - B
+                    - C
+                  - - A
+                    - B
+                    - C
+                  - - A
+                    - B
+                    - C
+                seatTypes:
+                  '1':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+                  '2':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+                  '3':
+                    A:
+                      type: window
+                      isAisle: false
+                    B:
+                      type: middle
+                      isAisle: false
+                    C:
+                      type: aisle
+                      isAisle: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Bus Management
+      summary: Delete Seat Matrix
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /bus/67737fa7c5d9df85a911ff06/seats/1/A:
+    put:
+      tags:
+        - Bus Management
+      summary: Update Single Seat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                isBlocked: true
+                isAisle: false
+                type: window
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Bus Management
+      summary: Get Single Seat
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /permit:
+    post:
+      tags:
+        - Permit Management
+      summary: Create Permit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                permitNumber: PN12345
+                issueDate: '2025-01-01'
+                expiryDate: '2025-11-31'
+                route: 677358d56fbafb47bd73420c
+                bus: 67738293664192688d3a39dc
+                operator: 6773fc7372126808af53cedb
+                status: active
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Permit Management
+      summary: View All Permit
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /permit/67740133f269b60a1b42d50c:
+    put:
+      tags:
+        - Permit Management
+      summary: Update Permit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                permitNumber: PN12345
+                issueDate: '2024-12-31'
+                expiryDate: '2025-01-01'
+                route: 64aef8b2c4f27b0034b0e7f6
+                bus: 64aef8b2c4f27b0034b0e7f7
+                operator: 64aef8b2c4f27b0034b0e7f8
+                status: active
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Permit Management
+      summary: Delete Permit
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Permit Management
+      summary: View Single Permit
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /permit/PN12345:
+    get:
+      tags:
+        - Permit Management
+      summary: Check Permit Validity
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /admin/booking:
+    post:
+      tags:
+        - Bookings & Payments
+      summary: Booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                from: City Center
+                to: Green Park
+                date: 2025-01-3
+                seatIds:
+                  - 6773839b664192688d3a39ef
+                  - 6773839b664192688d3a39f0
+                routeId: 677358d56fbafb47bd73420c
+                paymentDetails:
+                  method: credit_card
+                  cardNumber: '4111111111111111'
+                  cardType: visa
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /admin/booking/6773ce032f28d014e3fa3bae/cancel:
+    delete:
+      tags:
+        - Bookings & Payments
+      summary: Cancel Booking
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /admin/bookings:
+    get:
+      tags:
+        - Bookings & Payments
+      summary: View All Bookings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /booking-details/6773ce032f28d014e3fa3bae:
+    get:
+      tags:
+        - default
+      summary: New Request
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '766'
+            ETag:
+              schema:
+                type: string
+                example: W/"2fe-HPHDq4Hj7U7Q0KPl7TSeO0t7kjo"
+            Date:
+              schema:
+                type: string
+                example: Tue, 31 Dec 2024 11:54:38 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                booking:
+                  payment:
+                    details:
+                      cardDetails:
+                        lastFourDigits: '1111'
+                        cardType: visa
+                      method: credit_card
+                      paidAmount: 100
+                      paidAt: '2024-12-31T10:57:07.316Z'
+                    required: true
+                    status: refunded
+                  _id: 6773ce032f28d014e3fa3bae
+                  user:
+                    _id: 6772843f3fdcb343dfe9fab8
+                    name: Admin User
+                    email: learn.dev0603@gmail.com
+                  seats:
+                    - seatId: 6773839b664192688d3a39ef
+                      label: 1A
+                      _id: 6773ce032f28d014e3fa3baf
+                    - seatId: 6773839b664192688d3a39f0
+                      label: 1B
+                      _id: 6773ce032f28d014e3fa3bb0
+                  routeId:
+                    _id: 677358d56fbafb47bd73420c
+                    name: City Center to Green Park
+                  date: '2025-01-02T18:30:00.000Z'
+                  totalFare: 100
+                  status: cancelled
+                  createdAt: '2024-12-31T10:57:07.317Z'
+                  updatedAt: '2024-12-31T10:57:07.317Z'
+                  __v: 0
