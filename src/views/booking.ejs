@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Booking Confirmation</title>
+    </head>
+
+    <body>
+        <h1>Booking Confirmation</h1>
+        <p><strong>Bus Name:</strong> <%= booking.busName %></p>
+        <p><strong>Seat Number:</strong> <%= booking.seatNumber %></p>
+        <p><strong>Departure Time:</strong> <%= booking.departureTime %></p>
+        <p><strong>Price:</strong> <%= booking.price %></p>
+        <img src="<%= booking.qrCodeUrl %>" alt="QR Code" />
+    </body>
+
+</html>

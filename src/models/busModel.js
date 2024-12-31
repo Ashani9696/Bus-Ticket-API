@@ -38,6 +38,12 @@ const busSchema = new mongoose.Schema(
       hasUSBCharging: { type: Boolean, default: false },
       hasEntertainmentSystem: { type: Boolean, default: false },
     },
+    busType: {
+      type: String,
+      enum: ['luxury', 'semiLuxury', 'normal'],
+      required: true,
+      default: 'normal',
+    },
     maintenance: {
       lastMaintenanceDate: Date,
       nextMaintenanceDate: Date,

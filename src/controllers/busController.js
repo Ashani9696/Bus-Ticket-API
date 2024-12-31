@@ -8,6 +8,7 @@ const createBus = async (req, res) => {
       manufacturer: req.body.manufacturer,
       capacity: req.body.capacity,
       features: req.body.features,
+      busType: req.body.busType || 'normal',
     };
 
     const bus = new Bus(busData);
@@ -33,11 +34,12 @@ const createBus = async (req, res) => {
 
 const getAllBuses = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status, maintenanceStatus, sortBy = 'registrationNumber' } = req.query;
+    const { page = 1, limit = 10, status, maintenanceStatus, busType, sortBy = 'registrationNumber' } = req.query;
 
     const query = {};
     if (status) query.status = status;
     if (maintenanceStatus) query['maintenance.status'] = maintenanceStatus;
+    if (busType) query.busType = busType;
 
     const buses = await Bus.find(query)
       .sort(sortBy)
@@ -51,7 +53,7 @@ const getAllBuses = async (req, res) => {
       success: true,
       data: buses,
       totalPages: Math.ceil(count / limit),
-      currentPage: page,
+      currentPage: parseInt(page, 10),
     });
   } catch (error) {
     res.status(500).json({

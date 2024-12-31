@@ -1,9 +1,10 @@
 const express = require('express');
-const adminController = require('../controllers/adminController');
 const routeController = require('../controllers/routeController');
 const permitController = require('../controllers/permitController');
 const busController = require('../controllers/busController');
 const seatController = require('../controllers/seatsController');
+const bookingController = require('../controllers/bookingController');
+const userController = require('../controllers/userController');
 const { authorize, protect } = require('../middlewares/authMiddleware');
 const permitValidationMiddleware = require('../validations/permit/createSchema');
 
@@ -16,14 +17,7 @@ router.get('/route', routeController.getAllRoutes);
 router.get('/route/:id', routeController.getRouteById);
 router.put('/route/:id', routeController.updateRoute);
 router.delete('/route/:id', routeController.deleteRoute);
-
-router.post('/permit', permitValidationMiddleware, permitController.createPermit);
-router.get('/permit', permitController.getAllPermits);
-router.get('/permit/:id', permitController.getPermitById);
-router.put('/permit/:id', permitController.updatePermit);
-router.delete('/permit/:id', permitController.deletePermit);
-router.get('/permit/status', permitController.getPermitStats);
-router.get('/permit/:permitNumber', permitController.checkPermitValidity);
+router.put('/route/:routeId/assign-busses', routeController.assignBusesToRoute);
 
 router.post('/bus', busController.createBus);
 router.get('/buses', busController.getAllBuses);
@@ -38,15 +32,23 @@ router.put('/bus/:id/seats', seatController.updateSeatMatrix);
 router.put('/bus/:id/seats/:row/:column', seatController.updateSeat);
 router.delete('/bus/:id/seats', seatController.deleteSeatMatrix);
 
-router.post('/users', adminController.createUser);
-router.put('/users/:userId', adminController.updateUser);
-router.delete('/users/:userId', adminController.deleteUser);
-router.get('/users/:userId', adminController.viewUserById);
-router.get('/users', adminController.viewAllUsers);
+router.post('/permit', permitValidationMiddleware, permitController.createPermit);
+router.get('/permit', permitController.getAllPermits);
+router.get('/permit/:id', permitController.getPermitById);
+router.put('/permit/:id', permitController.updatePermit);
+router.delete('/permit/:id', permitController.deletePermit);
+router.get('/permit/status', permitController.getPermitStats);
+router.get('/permit/:permitNumber', permitController.checkPermitValidity);
 
-router.get('/payments', adminController.viewAllPayments);
+router.post('/booking', bookingController.bookSeats);
+router.delete('/booking/:bookingId/cancel', bookingController.cancelBooking);
+router.get('/bookings', bookingController.getAllBookings);
 
-router.get('/operators', adminController.viewAllBusOperators);
-router.put('/operators/:userId', adminController.updateBusOperator);
+router.post('/user', userController.createUser);
+router.get('/users', userController.getUsers);
+router.get('/users/:id', userController.getUserById);
+router.put('/users/:id', userController.updateUser);
+router.delete('/users/:id', userController.deleteUser);
+router.post('/users/:id/reset-password', userController.resetPassword);
 
 module.exports = router;

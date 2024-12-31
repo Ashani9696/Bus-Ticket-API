@@ -19,14 +19,16 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use('/', require('./routes/bookingRoutes'));
+
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yml'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/operator', require('./routes/busOperatorRoutes'));
-app.use('/api/commuter', require('./routes/commuterRoutes'));
 
 app.use(errorHandler);
 

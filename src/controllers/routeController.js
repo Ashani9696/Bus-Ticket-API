@@ -51,11 +51,22 @@ const createRoute = async (req, res) => {
 
 const getAllRoutes = async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, sort = '-createdAt' } = req.query;
+    const { page = 1, limit = 10, category, from, to, date, sort = '-createdAt' } = req.query;
 
     const filter = {};
     if (category) filter.category = category;
     filter.status = { $ne: 'Discontinued' };
+
+    if (from && to) {
+      filter['stops.name'] = { $all: [from, to] };
+    }
+
+    if (date) {
+      const selectedDate = new Date(date);
+      const weekday = selectedDate.toLocaleString('en-US', { weekday: 'long' });
+
+      filter['schedules.operatingDays'] = weekday;
+    }
 
     const routes = await Route.find(filter)
       .sort(sort)
@@ -215,6 +226,90 @@ const calculateFare = async (req, res) => {
   }
 };
 
+const assignBusesToRoute = async (req, res) => {
+  try {
+    const { routeId } = req.params;
+    const { buses } = req.body;
+
+    if (!routeId || !buses || !Array.isArray(buses)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Route ID and buses array are required',
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(routeId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid routeId format',
+      });
+    }
+
+    for (const bus of buses) {
+      if (
+        !bus.bus ||
+        !mongoose.Types.ObjectId.isValid(bus.bus) ||
+        !bus.schedule ||
+        !mongoose.Types.ObjectId.isValid(bus.schedule)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'Each bus must include valid bus and schedule IDs',
+        });
+      }
+    }
+
+    const route = await Route.findById(routeId);
+
+    if (!route || route.status === 'Discontinued') {
+      return res.status(404).json({
+        success: false,
+        message: 'Route not found or is discontinued',
+      });
+    }
+
+    for (const bus of buses) {
+      const isScheduleAlreadyAssigned = route.assignedBuses.some(
+        (assignedBus) => assignedBus.schedule.toString() === bus.schedule
+      );
+
+      if (isScheduleAlreadyAssigned) {
+        return res.status(400).json({
+          success: false,
+          message: `Schedule ${bus.schedule} is already assigned to another bus on this route`,
+        });
+      }
+    }
+
+    buses.forEach((bus) => {
+      const isBusAlreadyAssigned = route.assignedBuses.some((assignedBus) => assignedBus.bus.toString() === bus.bus);
+
+      if (!isBusAlreadyAssigned) {
+        route.assignedBuses.push({
+          bus: bus.bus,
+          schedule: bus.schedule,
+          isActive: bus.isActive !== undefined ? bus.isActive : true,
+        });
+      }
+    });
+
+    await route.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Buses assigned to route successfully',
+      assignedBuses: route.assignedBuses,
+    });
+  } catch (error) {
+    console.error('Assign buses error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to assign buses to route',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createRoute,
   getAllRoutes,
@@ -222,4 +317,5 @@ module.exports = {
   updateRoute,
   deleteRoute,
   calculateFare,
+  assignBusesToRoute,
 };

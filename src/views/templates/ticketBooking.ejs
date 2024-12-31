@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ticket Confirmation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f9f9f9;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                color: #333333;
+            }
+
+            p {
+                color: #555555;
+                font-size: 14px;
+            }
+
+            ul {
+                padding-left: 20px;
+            }
+
+            li {
+                margin-bottom: 10px;
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 10px 20px;
+                color: #ffffff;
+                background-color: #007bff;
+                text-decoration: none;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            .btn:hover {
+                background-color: #0056b3;
+            }
+
+            .seat-map {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                margin: 20px 0;
+            }
+
+            .seat {
+                width: 40px;
+                height: 40px;
+                text-align: center;
+                line-height: 40px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #e9ecef;
+                color: #333;
+                font-size: 12px;
+            }
+
+            .seat-booked {
+                background-color: #28a745;
+                color: #ffffff;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Hello <%= firstName %>,</h1>
+            <p>Your ticket for the bus route <strong>City Center to Green Park</strong> has been successfully booked.
+            </p>
+            <p>Route Details:</p>
+            <ul>
+                <li><strong>Route Name:</strong> City Center to Green Park</li>
+                <li><strong>Route Number:</strong> R001</li>
+                <li><strong>From:</strong> City Center</li>
+                <li><strong>To:</strong> Green Park</li>
+            </ul>
+            <p>Booking Details:</p>
+            <ul>
+                <li><strong>Date:</strong> <%= date %></li>
+                <li><strong>Seats:</strong> <%= seatNumbers %></li>
+                <li><strong>Total Fare:</strong> <%= price %></li>
+            </ul>
+            <a href="<%= bookingLink %>" target="_blank" class="btn">View Booking</a>
+        </div>
+    </body>
+
+</html>
